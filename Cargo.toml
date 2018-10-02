@@ -1,9 +1,9 @@
 [package]
-name = "sub4"
+name = "json5-to-json"
 version = "0.1.0"
 authors = ["Callum Oakley <c.oakley108@gmail.com>"]
 
 [dependencies]
-json5 = "0.1"
+json5 = "0.2"
 serde = "1.0"
 serde_derive = "1.0"

@@ -34,7 +34,7 @@ fn main() -> () {
     match run() {
         Ok(s) => println!("{}", s),
         Err(err) => {
-            eprintln!("sub4: error: {}", err);
+            eprintln!("json5-to-json: error: {}", err);
             process::exit(1);
         }
     }
