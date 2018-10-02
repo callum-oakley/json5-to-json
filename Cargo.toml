@@ -1,11 +1,11 @@
 [package]
 name = "json5-to-json"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Callum Oakley <c.oakley108@gmail.com>"]
 description = "A bare-bones tool for converting JSON5 to plain JSON."
 license = "ISC"
 repository = "https://github.com/callum-oakley/json5-to-json"
-readme = "README"
+readme = "README.md"
 keywords = ["json5", "to", "json", "translate", "convert"]
 
 [dependencies]
