@@ -4,7 +4,7 @@ use std::error::Error;
 use std::io::{self, Read};
 use std::process;
 
-fn run() -> Result<String, Box<Error>> {
+fn run() -> Result<String, Box<dyn Error>> {
     let mut buffer = String::new();
     io::stdin().read_to_string(&mut buffer)?;
 
