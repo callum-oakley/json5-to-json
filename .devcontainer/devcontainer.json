@@ -1,5 +1,5 @@
 {
-    "name": "j52j",
+    "name": "j5j",
     "image": "ghcr.io/linkerd/dev:v30",
     "extensions": [
         "DavidAnson.vscode-markdownlint",

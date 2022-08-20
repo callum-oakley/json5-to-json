@@ -1,0 +1,68 @@
+name: Release
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/release.yml
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+env:
+  CARGO_INCREMENTAL: 0
+  CARGO_NET_RETRY: 10
+  RUSTFLAGS: "-D warnings"
+  RUSTUP_MAX_RETRIES: 10
+
+jobs:
+  meta:
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    container: ghcr.io/linkerd/dev:v30-rust
+    steps:
+      - id: meta
+        shell: bash
+        run: |
+          set -eu
+          shopt -s extglob
+          ref="${{ github.ref }}"
+          if [[ "$ref" == refs/tags/v+([0-9]).+([0-9]).+([0-9])?(-+([a-z0-9-])) ]]; then
+            tv=${ref##refs/tags/}
+            cv=$(just --evaluate version)
+            if [ "${tv#v}" != "$cv" ]; then
+              echo "::error ::Crate version v${cv} does not match tag version ${tv}"
+              exit 1
+            fi
+            echo ::set-output name=version::"$tv"
+            echo ::set-output name=publish::true
+          else
+            sha="${{ github.sha }}"
+            echo ::set-output name=version::"test-${sha:0:7}"
+          fi
+    outputs:
+      publish: ${{ steps.meta.outputs.publish }}
+      version: ${{ steps.meta.outputs.version }}
+
+  package:
+    needs: [meta]
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    container: ghcr.io/linkerd/dev:v30-rust
+    steps:
+      - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+      - run: just fetch
+      - run: just build
+      - run: just package
+
+      - if: needs.meta.outputs.publish == 'true'
+        uses: softprops/action-gh-release@1e07f4398721186383de40550babbdf2b84acfc5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          name: ${{ needs.meta.outputs.version }}
+          files: target/j5j-${{ needs.meta.outputs.version }}-*.tar.gz
+          generate_release_notes: true
+

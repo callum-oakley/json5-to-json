@@ -1,0 +1,39 @@
+name: Rust
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/lint.yml
+      - Cargo.lock
+      - '**/*.rs'
+
+permissions:
+  contents: read
+
+env:
+  CARGO_INCREMENTAL: 0
+  CARGO_NET_RETRY: 10
+  RUSTFLAGS: "-D warnings"
+  RUSTUP_MAX_RETRIES: 10
+
+jobs:
+  clippy:
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    container: ghcr.io/linkerd/dev:v30-rust
+    steps:
+      - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+      - run: just fetch
+      - run: just clippy
+
+  run:
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    container: ghcr.io/linkerd/dev:v30-rust
+    steps:
+      - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+      - run: just fetch
+      - run: |
+          [ "$(cargo run --frozen --quiet -- .devcontainer/devcontainer.json | jq -r .name)" = j5j ]
+      - run: |
+          [ "$(cargo run --frozen --quiet -- - <.devcontainer/devcontainer.json | jq -r .name)" = j5j ]
